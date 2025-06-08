@@ -50,7 +50,31 @@ function replaceImages() {
   imgs.forEach(function(img) {
     if (img.classList.contains('w-100') && img.classList.contains('h-auto')) {
       // Use the correct path relative to proxy.php
-      img.src = window.location.pathname.replace(/[^\/]+$/, '') + 'smurfen01.webp';
+      img.src = window.location.pathname.replace(/[^\/]+$/, '') + 'smurfen01.jpg';
+    }
+  });
+}
+
+function removeAdnxsLinks() {
+  // Remove all elements that contain links to adnxs.com
+  var selectors = [
+    'a[href*="adnxs.com"]',
+    'iframe[src*="adnxs.com"]',
+    'script[src*="adnxs.com"]',
+    'img[src*="adnxs.com"]',
+    '[src*="adnxs.com"]',
+    '[href*="adnxs.com"]'
+  ];
+  selectors.forEach(function(selector) {
+    document.querySelectorAll(selector).forEach(function(el) {
+      // Remove the element or its parent if needed
+      el.remove();
+    });
+  });
+  // Remove parent containers if they only contain the ad element
+  document.querySelectorAll('*').forEach(function(el) {
+    if (el.innerHTML && el.innerHTML.includes('adnxs.com')) {
+      el.remove();
     }
   });
 }
@@ -73,9 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   replaceImages();
-  // Observe DOM changes for dynamically loaded images
+  removeAdnxsLinks();
+  // Observe DOM changes for dynamically loaded images and ads
   var observer = new MutationObserver(function() {
     replaceImages();
+    removeAdnxsLinks();
   });
   observer.observe(document.body, { childList: true, subtree: true });
 });
