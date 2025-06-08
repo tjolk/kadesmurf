@@ -62,17 +62,27 @@ foreach ($nodes as $node) {
     }
 }
 
-// Build unique word list (case-insensitive, but preserve original)
-$allWords = [];
+// Build unique word list with frequency count
+$wordCounts = [];
 foreach ($texts as $line) {
     foreach (preg_split('/\W+/u', $line, -1, PREG_SPLIT_NO_EMPTY) as $word) {
         // Filter out numbers and single characters
         if (preg_match('/^\d+$/', $word)) continue; // skip numbers
         if (mb_strlen($word) < 2) continue; // skip single characters
-        $allWords[$word] = true;
+        if (!isset($wordCounts[$word])) {
+            $wordCounts[$word] = 0;
+        }
+        $wordCounts[$word]++;
     }
 }
-ksort($allWords, SORT_NATURAL | SORT_FLAG_CASE);
+// Order by frequency descending, then alphabetically
+uksort($wordCounts, function($a, $b) use ($wordCounts) {
+    if ($wordCounts[$a] === $wordCounts[$b]) {
+        return strcasecmp($a, $b);
+    }
+    return $wordCounts[$b] - $wordCounts[$a];
+});
+$allWords = $wordCounts;
 
 // Load existing replacements
 $replacements = [];
@@ -125,11 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container">
 <h2>Word Replacement Admin</h2>
 <p>URL: <code><?= htmlspecialchars($url) ?></code></p>
-<form method="post" id="replaceForm" autocomplete="off">
+<form method="post" id="replaceForm">
 <div class="word-list">
-<?php foreach ($allWords as $word => $_): ?>
+<?php foreach ($allWords as $word => $count): ?>
   <div class="word-row">
-    <span class="word-label"><?= htmlspecialchars($word) ?></span>
+    <span class="word-label" title="Frequency: <?= $count ?>"><?= htmlspecialchars($word) ?></span>
     <input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>" data-word="<?= htmlspecialchars($word) ?>">
   </div>
 <?php endforeach; ?>
