@@ -17,23 +17,36 @@ if (!filter_var($url, FILTER_VALIDATE_URL)) {
     exit;
 }
 
-// Fetch the remote content
-$options = [
-    'http' => [
-        'method' => 'GET',
-        'header' => [
-            'User-Agent: PHP Proxy/1.0'
+// Caching setup
+$cacheDir = __DIR__ . '/cache';
+if (!file_exists($cacheDir)) {
+    mkdir($cacheDir, 0777, true);
+}
+$cacheFile = $cacheDir . '/' . md5($url) . '.html';
+$cacheLifetime = 86400; // 1 day in seconds
+
+// Serve from cache if available and fresh
+if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
+    $content = file_get_contents($cacheFile);
+} else {
+    // Fetch the remote content
+    $options = [
+        'http' => [
+            'method' => 'GET',
+            'header' => [
+                'User-Agent: PHP Proxy/1.0'
+            ]
         ]
-    ]
-];
-$context = stream_context_create($options);
-
-$content = @file_get_contents($url, false, $context);
-
-if ($content === false) {
-    http_response_code(502);
-    echo 'Failed to fetch remote content.';
-    exit;
+    ];
+    $context = stream_context_create($options);
+    $content = @file_get_contents($url, false, $context);
+    if ($content === false) {
+        http_response_code(502);
+        echo 'Failed to fetch remote content.';
+        exit;
+    }
+    // Save to cache
+    file_put_contents($cacheFile, $content);
 }
 
 // Optionally, modify the HTML here (e.g., inject a script)
