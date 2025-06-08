@@ -1,0 +1,123 @@
+<?php
+// admin_word_replace.php
+// Usage: /admin_word_replace.php?url=https://www.kaderock.com
+// Shows all unique words and allows admin to define replacements
+
+$mappingFile = __DIR__ . '/word_replacements.json';
+
+if (!isset($_GET['url'])) {
+    http_response_code(400);
+    echo 'Missing url parameter.';
+    exit;
+}
+
+$url = $_GET['url'];
+if (!filter_var($url, FILTER_VALIDATE_URL)) {
+    http_response_code(400);
+    echo 'Invalid URL.';
+    exit;
+}
+
+$cacheDir = __DIR__ . '/cache';
+if (!file_exists($cacheDir)) {
+    mkdir($cacheDir, 0777, true);
+}
+$cacheFile = $cacheDir . '/' . md5($url) . '.html';
+$cacheLifetime = 86400; // 1 day
+
+// Use cached content if available
+if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
+    $html = file_get_contents($cacheFile);
+} else {
+    // Fetch and cache as usual
+    $options = [
+        'http' => [
+            'method' => 'GET',
+            'header' => [
+                'User-Agent: PHP Proxy/1.0'
+            ]
+        ]
+    ];
+    $context = stream_context_create($options);
+    $html = @file_get_contents($url, false, $context);
+    if ($html === false) {
+        http_response_code(502);
+        echo 'Failed to fetch remote content.';
+        exit;
+    }
+    file_put_contents($cacheFile, $html);
+}
+
+// Extract readable text from HTML
+libxml_use_internal_errors(true);
+$dom = new DOMDocument();
+$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+$xpath = new DOMXPath($dom);
+$nodes = $xpath->query('//body//*[not(self::script or self::style or self::noscript)]/text()[normalize-space()] | //body/text()[normalize-space()]');
+$texts = [];
+foreach ($nodes as $node) {
+    $text = trim($node->nodeValue);
+    if ($text !== '') {
+        $texts[] = $text;
+    }
+}
+
+// Build unique word list (case-insensitive, but preserve original)
+$allWords = [];
+foreach ($texts as $line) {
+    foreach (preg_split('/\W+/u', $line, -1, PREG_SPLIT_NO_EMPTY) as $word) {
+        $allWords[$word] = true;
+    }
+}
+ksort($allWords, SORT_NATURAL | SORT_FLAG_CASE);
+
+// Load existing replacements
+$replacements = [];
+if (file_exists($mappingFile)) {
+    $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    foreach ($allWords as $word => $_) {
+        $replacement = isset($_POST['replace_' . md5($word)]) ? trim($_POST['replace_' . md5($word)]) : '';
+        if ($replacement !== '' && $replacement !== $word) {
+            $replacements[$word] = $replacement;
+        } elseif (isset($replacements[$word])) {
+            unset($replacements[$word]);
+        }
+    }
+    file_put_contents($mappingFile, json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    echo '<div style="background: #cfc; padding: 10px;">Replacements saved!</div>';
+}
+
+// Show the form
+?><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Word Replacement Admin</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 4px 8px; }
+        input[type=text] { width: 100%; }
+    </style>
+</head>
+<body>
+<h2>Word Replacement Admin</h2>
+<p>URL: <code><?= htmlspecialchars($url) ?></code></p>
+<form method="post">
+<table>
+<tr><th>Original Word</th><th>Replacement</th></tr>
+<?php foreach ($allWords as $word => $_): ?>
+<tr>
+    <td><?= htmlspecialchars($word) ?></td>
+    <td><input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>"></td>
+</tr>
+<?php endforeach; ?>
+</table>
+<p><button type="submit">Save Replacements</button></p>
+</form>
+</body>
+</html>

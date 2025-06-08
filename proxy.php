@@ -49,10 +49,39 @@ if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)
     file_put_contents($cacheFile, $content);
 }
 
+// Load word replacements if available
+$mappingFile = __DIR__ . '/word_replacements.json';
+$replacements = [];
+if (file_exists($mappingFile)) {
+    $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
+}
+
+// Function to replace words in HTML text nodes only
+function replace_words_in_html($html, $replacements) {
+    if (empty($replacements)) return $html;
+    libxml_use_internal_errors(true);
+    $dom = new DOMDocument();
+    $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+    $xpath = new DOMXPath($dom);
+    $nodes = $xpath->query('//body//*[not(self::script or self::style or self::noscript)]/text() | //body/text()');
+    foreach ($nodes as $node) {
+        $text = $node->nodeValue;
+        foreach ($replacements as $from => $to) {
+            // Whole word, case-sensitive
+            $text = preg_replace('/\b' . preg_quote($from, '/') . '\b/u', $to, $text);
+        }
+        $node->nodeValue = $text;
+    }
+    return $dom->saveHTML();
+}
+
 // Optionally, modify the HTML here (e.g., inject a script)
 // Example: inject a banner at the top
 $banner = '<div style="background: #222; color: #fff; padding: 10px; text-align: center;">This is a proxy banner</div>';
 $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
+
+// Apply word replacements to the HTML
+$content = replace_words_in_html($content, $replacements);
 
 // Inject a script to rewrite all links to go through the proxy and replace images with 'smurfen01.webp'
 $script = <<<EOT
