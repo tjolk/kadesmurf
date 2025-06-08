@@ -66,6 +66,9 @@ foreach ($nodes as $node) {
 $allWords = [];
 foreach ($texts as $line) {
     foreach (preg_split('/\W+/u', $line, -1, PREG_SPLIT_NO_EMPTY) as $word) {
+        // Filter out numbers and single characters
+        if (preg_match('/^\d+$/', $word)) continue; // skip numbers
+        if (mb_strlen($word) < 2) continue; // skip single characters
         $allWords[$word] = true;
     }
 }

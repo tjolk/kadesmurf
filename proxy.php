@@ -77,7 +77,7 @@ function replace_words_in_html($html, $replacements) {
 
 // Optionally, modify the HTML here (e.g., inject a script)
 // Example: inject a banner at the top
-$banner = '<div style="background: #4695D6; color: #fff; padding: 10px; text-align: center;">T̶̡̀h̷̻̏i̷̋ͅs̶̜͛ ̷̗͝w̶͖̎ĕ̷̝b̵̭̏s̴̗̚ḯ̶̭t̴̨́e̴̤̐ ̷̬̉i̴͎͂s̵͕͒ ̸̥̋s̷͓̈m̶̺͌u̸̮͐r̴̩̀f̸͎̍è̷̩d̴̥̈́</div>';
+$banner = '<div style="background: #4695D6; color: #fff; padding: 0px; text-align: center; font-weight: bold;">T̶̡̀h̷̻̏i̷̋ͅs̶̜͛ ̷̗͝w̶͖̎ĕ̷̝b̵̭̏s̴̗̚ḯ̶̭t̴̨́e̴̤̐ ̷̬̉i̴͎͂s̵͕͒ ̸̥̋s̷͓̈m̶̺͌u̸̮͐r̴̩̀f̸͎̍è̷̩d̴̥̈́</div>';
 $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
 
 // Apply word replacements to the HTML
