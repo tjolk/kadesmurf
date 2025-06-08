@@ -73,6 +73,8 @@ function removeAdnxsLinks() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Get the base URL of the proxy (current origin + pathname up to proxy.php)
+  var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php');
   // Rewrite all anchor tags
   var links = document.querySelectorAll('a[href]');
   links.forEach(function(link) {
@@ -85,8 +87,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       if (url.protocol === 'http:' || url.protocol === 'https:') {
-        // Always rewrite to the proxy.php on your server with the correct absolute URL
-        link.setAttribute('href', '/proxy.php?url=' + encodeURIComponent(url.href));
+        // Always rewrite to the current proxy.php with the correct absolute URL
+        link.setAttribute('href', proxyBase + '?url=' + encodeURIComponent(url.href));
       }
     }
   });
