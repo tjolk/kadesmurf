@@ -90,6 +90,18 @@ if (file_exists($mappingFile)) {
     $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
 }
 
+// Move words with replacements to the bottom
+$withReplacement = [];
+$withoutReplacement = [];
+foreach ($allWords as $word => $count) {
+    if (isset($replacements[$word])) {
+        $withReplacement[$word] = $count;
+    } else {
+        $withoutReplacement[$word] = $count;
+    }
+}
+$allWords = $withoutReplacement + $withReplacement;
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($allWords as $word => $_) {
