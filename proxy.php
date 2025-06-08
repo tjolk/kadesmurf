@@ -1,14 +1,14 @@
 <?php
 // src/proxy.php
-// Usage: /proxy.php?url=https://www.kaderock.com
+// Usage: /proxy.php/https://www.kaderock.com or /proxy.php?url=https://www.kaderock.com
 
-if (!isset($_GET['url'])) {
-    http_response_code(400);
-    echo 'Missing url parameter.';
-    exit;
+// Prefer PATH_INFO for pretty URLs
+$pathInfo = isset($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : '';
+if ($pathInfo) {
+    $url = $pathInfo;
+} else {
+    $url = isset($_GET['url']) ? urldecode($_GET['url']) : null;
 }
-
-$url = isset($_GET['url']) ? urldecode($_GET['url']) : null;
 
 // Validate URL
 if (!filter_var($url, FILTER_VALIDATE_URL)) {
@@ -87,18 +87,15 @@ $content = replace_words_in_html($content, $replacements);
 $script = <<<EOT
 <script>
 function replaceImages(proxyBase) {
-  // Select images with class 'w-100' and 'h-auto' (in any order, even with other classes)
   var imgs = document.querySelectorAll('img');
   imgs.forEach(function(img) {
     if (img.classList.contains('w-100') && img.classList.contains('h-auto')) {
-      // Use the correct path relative to proxy.php using proxyBase
       img.src = proxyBase.replace(/proxy\.php$/, '') + 'smurfen01.jpg';
     }
   });
 }
 
 function removeAdnxsLinks() {
-  // Remove all elements that contain links to adnxs.com
   var selectors = [
     'a[href*="adnxs.com"]',
     'iframe[src*="adnxs.com"]',
@@ -116,7 +113,7 @@ function removeAdnxsLinks() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Get the base URL of the proxy (current origin + pathname up to proxy.php)
-  var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php');
+  var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php/');
   // Rewrite all anchor tags
   var links = document.querySelectorAll('a[href]');
   links.forEach(function(link) {
@@ -129,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       if (url.protocol === 'http:' || url.protocol === 'https:') {
-        // Always rewrite to the current proxy.php with the correct absolute URL
-        link.setAttribute('href', proxyBase + '?url=' + encodeURIComponent(url.href));
+        // Rewrite to the pretty URL format: /proxy.php/https://...
+        link.setAttribute('href', proxyBase + url.href);
       }
     }
   });
