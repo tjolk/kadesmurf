@@ -29,8 +29,17 @@
       if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
       }
-      // Use encodeURIComponent for the url parameter value
-      window.location.href = 'proxy.php?url=' + encodeURIComponent(url);
+      // Redirect using a form submission to avoid encoding ://
+      const form = document.createElement('form');
+      form.action = 'proxy.php';
+      form.method = 'GET';
+      form.style.display = 'none';
+      const input = document.createElement('input');
+      input.name = 'url';
+      input.value = url;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
       return false;
     }
   </script>
