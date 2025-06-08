@@ -121,3 +121,45 @@ $content = preg_replace('/<\/body>/i', $script . '</body>', $content, 1);
 // Output the modified content
 header('Content-Type: text/html');
 echo $content;
+
+// Backend function to display all readable text of the website
+if (isset($_GET['showtext']) && $_GET['showtext'] === '1') {
+    // Use cached content if available
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
+        $html = file_get_contents($cacheFile);
+    } else {
+        // Fetch and cache as usual
+        $options = [
+            'http' => [
+                'method' => 'GET',
+                'header' => [
+                    'User-Agent: PHP Proxy/1.0'
+                ]
+            ]
+        ];
+        $context = stream_context_create($options);
+        $html = @file_get_contents($url, false, $context);
+        if ($html === false) {
+            http_response_code(502);
+            echo 'Failed to fetch remote content.';
+            exit;
+        }
+        file_put_contents($cacheFile, $html);
+    }
+    // Extract readable text from HTML
+    libxml_use_internal_errors(true);
+    $dom = new DOMDocument();
+    $dom->loadHTML($html);
+    $xpath = new DOMXPath($dom);
+    $nodes = $xpath->query('//body//*[not(self::script or self::style or self::noscript)]/text() | //body/text()');
+    $texts = [];
+    foreach ($nodes as $node) {
+        $text = trim($node->nodeValue);
+        if ($text !== '') {
+            $texts[] = $text;
+        }
+    }
+    header('Content-Type: text/plain; charset=utf-8');
+    echo implode("\n", $texts);
+    exit;
+}
