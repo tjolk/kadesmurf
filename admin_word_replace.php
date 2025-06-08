@@ -96,15 +96,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Word Replacement Admin</title>
     <style>
-        body { font-family: sans-serif; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ccc; padding: 4px 8px; }
-        input[type=text] { width: 100%; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f8f8f8; }
+        .container { max-width: 700px; margin: 0 auto; padding: 1em; background: #fff; box-shadow: 0 2px 8px #0001; }
+        h2 { margin-top: 0; }
+        table { border-collapse: collapse; width: 100%; font-size: 1em; }
+        th, td { border: 1px solid #ccc; padding: 6px 4px; }
+        th { background: #eee; }
+        input[type=text] { width: 100%; box-sizing: border-box; font-size: 1em; padding: 4px; }
+        button { font-size: 1em; padding: 8px 16px; margin-top: 1em; }
+        @media (max-width: 600px) {
+            .container { padding: 0.5em; }
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
+            th, td { border: none; border-bottom: 1px solid #ccc; }
+            tr { margin-bottom: 1em; background: #fafafa; }
+            th { background: #eee; font-weight: bold; }
+            td { background: #fff; }
+            td:before { content: attr(data-label); font-weight: bold; display: block; margin-bottom: 2px; }
+        }
     </style>
 </head>
 <body>
+<div class="container">
 <h2>Word Replacement Admin</h2>
 <p>URL: <code><?= htmlspecialchars($url) ?></code></p>
 <form method="post">
@@ -112,12 +127,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <tr><th>Original Word</th><th>Replacement</th></tr>
 <?php foreach ($allWords as $word => $_): ?>
 <tr>
-    <td><?= htmlspecialchars($word) ?></td>
-    <td><input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>"></td>
+    <td data-label="Original Word"><?= htmlspecialchars($word) ?></td>
+    <td data-label="Replacement"><input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>"></td>
 </tr>
 <?php endforeach; ?>
 </table>
 <p><button type="submit">Save Replacements</button></p>
 </form>
+</div>
 </body>
 </html>
