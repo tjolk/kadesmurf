@@ -49,7 +49,8 @@ function replaceImages() {
   var imgs = document.querySelectorAll('img');
   imgs.forEach(function(img) {
     if (img.classList.contains('w-100') && img.classList.contains('h-auto')) {
-      img.src = 'smurfen01.webp';
+      // Use the correct path relative to proxy.php
+      img.src = window.location.pathname.replace(/[^\/]+$/, '') + 'smurfen01.webp';
     }
   });
 }
