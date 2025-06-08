@@ -80,12 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
       var url;
       try {
-        url = new URL(href, window.location.origin);
+        url = new URL(href, document.baseURI);
       } catch (e) {
         return;
       }
       if (url.protocol === 'http:' || url.protocol === 'https:') {
-        // Always rewrite to the proxy.php on your server
+        // Always rewrite to the proxy.php on your server with the correct absolute URL
         link.setAttribute('href', '/proxy.php?url=' + encodeURIComponent(url.href));
       }
     }
