@@ -4,6 +4,7 @@
 // Shows all unique words and allows admin to define replacements
 
 $mappingFile = __DIR__ . '/word_replacements.json';
+$excludeFile = __DIR__ . '/word_exclude.json';
 
 if (!isset($_GET['url'])) {
     http_response_code(400);
@@ -90,6 +91,17 @@ if (file_exists($mappingFile)) {
     $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
 }
 
+// Load excluded words
+$excludedWords = [];
+if (file_exists($excludeFile)) {
+    $excludedWords = json_decode(file_get_contents($excludeFile), true) ?: [];
+}
+
+// Remove excluded words from the list
+foreach ($excludedWords as $exWord) {
+    unset($allWords[$exWord]);
+}
+
 // Move words with replacements to the bottom
 $withReplacement = [];
 $withoutReplacement = [];
@@ -114,6 +126,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     file_put_contents($mappingFile, json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     echo '<div style="background: #cfc; padding: 10px;">Replacements smurfed!</div>';
+}
+
+// Handle AJAX exclude/unexclude requests
+if (isset($_POST['exclude_word'])) {
+    $word = $_POST['exclude_word'];
+    if (!in_array($word, $excludedWords, true)) {
+        $excludedWords[] = $word;
+        file_put_contents($excludeFile, json_encode($excludedWords, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+    echo 'excluded';
+    exit;
+}
+if (isset($_POST['unexclude_word'])) {
+    $word = $_POST['unexclude_word'];
+    $excludedWords = array_values(array_diff($excludedWords, [$word]));
+    file_put_contents($excludeFile, json_encode($excludedWords, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    echo 'unexcluded';
+    exit;
 }
 
 // Show the form
@@ -153,6 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="word-row">
     <span class="word-label" title="Frequency: <?= $count ?>"><?= htmlspecialchars($word) ?></span>
     <input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>" data-word="<?= htmlspecialchars($word) ?>">
+    <button type="button" class="exclude-btn" data-word="<?= htmlspecialchars($word) ?>">Exclude</button>
   </div>
 <?php endforeach; ?>
 </div>
@@ -190,6 +221,20 @@ form.addEventListener('input', function(e) {
                 setTimeout(() => { indicator.textContent = ''; }, 1200);
             });
         }, 500); // debounce
+    }
+});
+
+// Exclude button logic
+form.addEventListener('click', function(e) {
+    if (e.target.classList.contains('exclude-btn')) {
+        const word = e.target.getAttribute('data-word');
+        if (confirm('Exclude "' + word + '" from the list?')) {
+            const fd = new FormData();
+            fd.append('exclude_word', word);
+            fetch(window.location.href, { method: 'POST', body: fd })
+                .then(r => r.text())
+                .then(() => { e.target.closest('.word-row').remove(); });
+        }
     }
 });
 </script>
