@@ -44,13 +44,13 @@ $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
 // Inject a script to rewrite all links to go through the proxy and replace images with 'smurfen01.webp'
 $script = <<<EOT
 <script>
-function replaceImages() {
+function replaceImages(proxyBase) {
   // Select images with class 'w-100' and 'h-auto' (in any order, even with other classes)
   var imgs = document.querySelectorAll('img');
   imgs.forEach(function(img) {
     if (img.classList.contains('w-100') && img.classList.contains('h-auto')) {
-      // Use the correct path relative to proxy.php
-      img.src = window.location.pathname.replace(/[^\/]+$/, '') + 'smurfen01.jpg';
+      // Use the correct path relative to proxy.php using proxyBase
+      img.src = proxyBase.replace(/proxy\.php$/, '') + 'smurfen01.jpg';
     }
   });
 }
@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
-  replaceImages();
+  replaceImages(proxyBase);
   removeAdnxsLinks();
   // Observe DOM changes for dynamically loaded images and ads
   var observer = new MutationObserver(function() {
-    replaceImages();
+    replaceImages(proxyBase);
     removeAdnxsLinks();
   });
   observer.observe(document.body, { childList: true, subtree: true });
