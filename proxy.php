@@ -41,9 +41,19 @@ if ($content === false) {
 $banner = '<div style="background: #222; color: #fff; padding: 10px; text-align: center;">This is a proxy banner</div>';
 $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
 
-// Inject a script to rewrite all links to go through the proxy
+// Inject a script to rewrite all links to go through the proxy and replace images with 'smurfen01.webp'
 $script = <<<EOT
 <script>
+function replaceImages() {
+  // Select images with class 'w-100' and 'h-auto' (in any order, even with other classes)
+  var imgs = document.querySelectorAll('img');
+  imgs.forEach(function(img) {
+    if (img.classList.contains('w-100') && img.classList.contains('h-auto')) {
+      img.src = 'smurfen01.webp';
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Rewrite all anchor tags
   var links = document.querySelectorAll('a[href]');
@@ -61,11 +71,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
-  // Replace images with class 'w-100 h-auto' with smurfen01.webp
-  var imgs = document.querySelectorAll('img.w-100.h-auto');
-  imgs.forEach(function(img) {
-    img.src = 'smurfen01.webp';
+  replaceImages();
+  // Observe DOM changes for dynamically loaded images
+  var observer = new MutationObserver(function() {
+    replaceImages();
   });
+  observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
 EOT;
