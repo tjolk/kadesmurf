@@ -102,11 +102,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         body { font-family: sans-serif; margin: 0; padding: 0; background: #f8f8f8; }
         .container { max-width: 700px; margin: 0 auto; padding: 1em; background: #fff; box-shadow: 0 2px 8px #0001; }
         h2 { margin-top: 0; }
-        table { border-collapse: collapse; width: 100%; font-size: 1em; }
+        table { border-collapse: collapse; width: 100%; font-size: 1em; max-height: 70vh; display: block; overflow-y: auto; }
+        thead, tbody { width: 100%; display: table; table-layout: fixed; }
         th, td { border: 1px solid #ccc; padding: 6px 4px; }
         th { background: #eee; }
         input[type=text] { width: 100%; box-sizing: border-box; font-size: 1em; padding: 4px; }
         button { font-size: 1em; padding: 8px 16px; margin-top: 1em; }
+        /* Custom scrollbar for mobile friendliness */
+        table::-webkit-scrollbar { height: 8px; width: 8px; background: #eee; border-radius: 8px; }
+        table::-webkit-scrollbar-thumb { background: #bbb; border-radius: 8px; }
+        table { scrollbar-width: thin; scrollbar-color: #bbb #eee; }
         @media (max-width: 600px) {
             .container { padding: 0.5em; }
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
@@ -115,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             th { background: #eee; font-weight: bold; }
             td { background: #fff; }
             td:before { content: attr(data-label); font-weight: bold; display: block; margin-bottom: 2px; }
+            table { max-height: 60vh; }
         }
     </style>
 </head>
@@ -162,7 +168,7 @@ form.addEventListener('input', function(e) {
                     indicator.style.zIndex = 1000;
                     document.body.appendChild(indicator);
                 }
-                indicator.textContent = 'Autosaved';
+                indicator.textContent = 'Autosmurfed';
                 setTimeout(() => { indicator.textContent = ''; }, 1200);
             });
         }, 500); // debounce
