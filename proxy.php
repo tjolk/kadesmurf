@@ -73,6 +73,16 @@ function removeAdnxsLinks() {
 }
 
 // Replace Dutch verbs with 'smurf', 'smurft', or 'smurfen' depending on conjugation
+function replaceDutchVerbsInTextNodes(node) {
+  // Only process text nodes
+  if (node.nodeType === Node.TEXT_NODE) {
+    node.textContent = replaceDutchVerbs(node.textContent);
+  } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'NOSCRIPT') {
+    // Recursively process child nodes, but skip script/style/noscript
+    node.childNodes.forEach(replaceDutchVerbsInTextNodes);
+  }
+}
+
 function replaceDutchVerbs(text) {
   // Simple regex-based replacements for common Dutch verb endings
   // This is a naive approach and may not cover all cases
@@ -128,8 +138,15 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   replaceImages(proxyBase);
   removeAdnxsLinks();
-  // Observe DOM changes for dynamically loaded images and ads
-  var observer = new MutationObserver(function() {
+  // Replace verbs in all visible text nodes
+  replaceDutchVerbsInTextNodes(document.body);
+  // Observe DOM changes for dynamically loaded images, ads, and text
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      mutation.addedNodes.forEach(function(node) {
+        replaceDutchVerbsInTextNodes(node);
+      });
+    });
     replaceImages(proxyBase);
     removeAdnxsLinks();
   });
