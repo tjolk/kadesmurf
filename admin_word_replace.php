@@ -122,18 +122,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container">
 <h2>Word Replacement Admin</h2>
 <p>URL: <code><?= htmlspecialchars($url) ?></code></p>
-<form method="post">
+<form method="post" id="replaceForm" autocomplete="off">
 <table>
 <tr><th>Original Word</th><th>Replacement</th></tr>
 <?php foreach ($allWords as $word => $_): ?>
 <tr>
     <td data-label="Original Word"><?= htmlspecialchars($word) ?></td>
-    <td data-label="Replacement"><input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>"></td>
+    <td data-label="Replacement"><input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>" data-word="<?= htmlspecialchars($word) ?>"></td>
 </tr>
 <?php endforeach; ?>
 </table>
 <p><button type="submit">Save Replacements</button></p>
 </form>
+<script>
+// Auto-save on input change
+const form = document.getElementById('replaceForm');
+let timeout = null;
+form.addEventListener('input', function(e) {
+    if (e.target.tagName === 'INPUT') {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            const formData = new FormData(form);
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            }).then(r => r.text()).then(txt => {
+                // Optionally show a small autosave indicator
+                let indicator = document.getElementById('autosave-indicator');
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'autosave-indicator';
+                    indicator.style.position = 'fixed';
+                    indicator.style.bottom = '10px';
+                    indicator.style.right = '10px';
+                    indicator.style.background = '#cfc';
+                    indicator.style.padding = '6px 12px';
+                    indicator.style.borderRadius = '6px';
+                    indicator.style.boxShadow = '0 2px 8px #0002';
+                    indicator.style.zIndex = 1000;
+                    document.body.appendChild(indicator);
+                }
+                indicator.textContent = 'Autosaved';
+                setTimeout(() => { indicator.textContent = ''; }, 1200);
+            });
+        }, 500); // debounce
+    }
+});
+</script>
 </div>
 </body>
 </html>
