@@ -2,20 +2,29 @@
 // src/proxy.php
 // Usage: /proxy.php/https://www.kaderock.com or /proxy.php?url=https://www.kaderock.com
 
-// Prefer PATH_INFO for pretty URLs
-$pathInfo = isset($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : '';
-if ($pathInfo) {
-    $url = $pathInfo;
-} else {
-    $url = isset($_GET['url']) ? urldecode($_GET['url']) : null;
+// --- Robust PATH_INFO/REQUEST_URI parsing for pretty URLs ---
+$targetUrl = null;
+if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO']) {
+    // Remove leading slash
+    $targetUrl = ltrim($_SERVER['PATH_INFO'], '/');
+    // If the URL is percent-encoded, decode it
+    $targetUrl = urldecode($targetUrl);
+    // If the URL is missing the double slash after scheme, fix it
+    if (preg_match('#^(https?:)(/[^/])#', $targetUrl, $m)) {
+        // e.g. "https:/example.com" => "https://example.com"
+        $targetUrl = preg_replace('#^(https?:)/#', '$1//', $targetUrl);
+    }
+} elseif (isset($_GET['url'])) {
+    $targetUrl = urldecode($_GET['url']);
 }
 
 // Validate URL
-if (!filter_var($url, FILTER_VALIDATE_URL)) {
+if (!filter_var($targetUrl, FILTER_VALIDATE_URL)) {
     http_response_code(400);
     echo 'Invalid URL.';
     exit;
 }
+$url = $targetUrl;
 
 // Caching setup
 $cacheDir = __DIR__ . '/cache';
