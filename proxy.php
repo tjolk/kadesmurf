@@ -67,15 +67,8 @@ function removeAdnxsLinks() {
   ];
   selectors.forEach(function(selector) {
     document.querySelectorAll(selector).forEach(function(el) {
-      // Remove the element or its parent if needed
       el.remove();
     });
-  });
-  // Remove parent containers if they only contain the ad element
-  document.querySelectorAll('*').forEach(function(el) {
-    if (el.innerHTML && el.innerHTML.includes('adnxs.com')) {
-      el.remove();
-    }
   });
 }
 
