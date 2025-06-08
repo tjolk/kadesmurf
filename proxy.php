@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       if (url.protocol === 'http:' || url.protocol === 'https:') {
-        link.setAttribute('href', '?url=' + encodeURIComponent(url.href));
+        // Always rewrite to the proxy.php on your server
+        link.setAttribute('href', '/proxy.php?url=' + encodeURIComponent(url.href));
       }
     }
   });
