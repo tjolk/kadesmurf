@@ -8,7 +8,7 @@ if (!isset($_GET['url'])) {
     exit;
 }
 
-$url = $_GET['url'];
+$url = isset($_GET['url']) ? urldecode($_GET['url']) : null;
 
 // Validate URL
 if (!filter_var($url, FILTER_VALIDATE_URL)) {
