@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     file_put_contents($mappingFile, json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    echo '<div style="background: #cfc; padding: 10px;">Replacements saved!</div>';
+    echo '<div style="background: #cfc; padding: 10px;">Replacements smurfed!</div>';
 }
 
 // Show the form
