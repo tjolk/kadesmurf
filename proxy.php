@@ -72,50 +72,6 @@ function removeAdnxsLinks() {
   });
 }
 
-// Replace Dutch verbs with 'smurf', 'smurft', or 'smurfen' depending on conjugation
-function replaceDutchVerbsInTextNodes(node) {
-  // Only process text nodes
-  if (node.nodeType === Node.TEXT_NODE) {
-    node.textContent = replaceDutchVerbs(node.textContent);
-  } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'NOSCRIPT') {
-    // Recursively process child nodes, but skip script/style/noscript
-    node.childNodes.forEach(replaceDutchVerbsInTextNodes);
-  }
-}
-
-function replaceDutchVerbs(text) {
-  // Simple regex-based replacements for common Dutch verb endings
-  // This is a naive approach and may not cover all cases
-  // 'smurf' (ik-vorm), 'smurft' (jij/hij/zij-vorm), 'smurfen' (wij/jullie/zij-vorm)
-  return text
-    // infinitive (en ending)
-    .replace(/\\b(\\w+)(en)\\b/gi, 'smurfen')
-    // jij/hij/zij present (t ending)
-    .replace(/\\b(\\w+)(t)\\b/gi, 'smurft')
-    // ik-vorm (no ending or only stem)
-    .replace(/\\b(\\w+)(?=\\s|\\.|,|!|\\?|$)/gi, 'smurf');
-}
-
-// Wrap the original document.write and innerHTML setters to replace verbs
-(function() {
-  var origWrite = document.write;
-  document.write = function(str) {
-    return origWrite.call(document, replaceDutchVerbs(str));
-  };
-
-  var origSet = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').set;
-  Object.defineProperty(Element.prototype, 'innerHTML', {
-    set: function(value) {
-      origSet.call(this, replaceDutchVerbs(value));
-    }
-  });
-
-  // Replace verbs in the initial body content
-  document.addEventListener('DOMContentLoaded', function() {
-    document.body.innerHTML = replaceDutchVerbs(document.body.innerHTML);
-  });
-})();
-
 document.addEventListener('DOMContentLoaded', function() {
   // Get the base URL of the proxy (current origin + pathname up to proxy.php)
   var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php');
@@ -138,15 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   replaceImages(proxyBase);
   removeAdnxsLinks();
-  // Replace verbs in all visible text nodes
-  replaceDutchVerbsInTextNodes(document.body);
-  // Observe DOM changes for dynamically loaded images, ads, and text
-  var observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      mutation.addedNodes.forEach(function(node) {
-        replaceDutchVerbsInTextNodes(node);
-      });
-    });
+  // Observe DOM changes for dynamically loaded images and ads
+  var observer = new MutationObserver(function() {
     replaceImages(proxyBase);
     removeAdnxsLinks();
   });
