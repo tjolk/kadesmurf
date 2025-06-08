@@ -149,9 +149,9 @@ if (isset($_GET['showtext']) && $_GET['showtext'] === '1') {
     // Extract readable text from HTML
     libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    $dom->loadHTML($html);
+    $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
     $xpath = new DOMXPath($dom);
-    $nodes = $xpath->query('//body//*[not(self::script or self::style or self::noscript)]/text() | //body/text()');
+    $nodes = $xpath->query('//body//*[not(self::script or self::style or self::noscript)]/text()[normalize-space()] | //body/text()[normalize-space()]');
     $texts = [];
     foreach ($nodes as $node) {
         $text = trim($node->nodeValue);
