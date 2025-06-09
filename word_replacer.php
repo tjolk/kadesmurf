@@ -88,6 +88,17 @@ if (file_exists($mappingFile)) {
     $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
 }
 
+// Load excluded words
+$excludedWords = [];
+if (file_exists($excludeFile)) {
+    $excludedWords = json_decode(file_get_contents($excludeFile), true) ?: [];
+}
+
+// Remove excluded words from the list
+foreach ($excludedWords as $exWord) {
+    unset($allWords[$exWord]);
+}
+
 // Move words with replacements to the bottom
 $withReplacement = [];
 $withoutReplacement = [];
@@ -169,7 +180,7 @@ if (isset($_POST['unexclude_word'])) {
   <div class="word-row">
     <span class="word-label" title="Frequency: <?= $count ?>"><?= htmlspecialchars($word) ?></span>
     <input type="text" name="replace_<?= md5($word) ?>" value="<?= isset($replacements[$word]) ? htmlspecialchars($replacements[$word]) : '' ?>" data-word="<?= htmlspecialchars($word) ?>">
-    <button type="button" class="exclude-btn" data-word="<?= htmlspecialchars($word) ?>">Exclude</button>
+    <button type="button" class="exclude_btn" data-word="<?= htmlspecialchars($word) ?>">Exclude</button>
   </div>
 <?php endforeach; ?>
 </div>
@@ -212,7 +223,7 @@ form.addEventListener('input', function(e) {
 
 // Exclude button logic
 form.addEventListener('click', function(e) {
-    if (e.target.classList.contains('exclude-btn')) {
+    if (e.target.classList.contains('exclude_btn')) {
         const word = e.target.getAttribute('data-word');
         if (confirm('Exclude "' + word + '" from the list?')) {
             const fd = new FormData();
