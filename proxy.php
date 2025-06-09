@@ -230,6 +230,8 @@ if (isset($headersAssoc['content-type']) && stripos($headersAssoc['content-type'
         }
     }
 }
+// Improved CORS: Allow all origins for all proxied resources
+header('Access-Control-Allow-Origin: *');
 if ($isHtml) {
     header('Content-Type: text/html; charset=utf-8');
 }
