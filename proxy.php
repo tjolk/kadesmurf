@@ -291,3 +291,9 @@ $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 if (in_array($ext, $fontExtensions)) {
     header('Access-Control-Allow-Origin: *');
 }
+
+// Special handling: If the request is for a Cloudflare challenge endpoint, return 204 No Content
+if (strpos($path, '/cdn-cgi/') !== false) {
+    http_response_code(204); // No Content
+    exit;
+}
