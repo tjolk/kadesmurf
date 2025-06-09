@@ -86,7 +86,7 @@ function replace_words_in_html($html, $replacements) {
 
 // Optionally, modify the HTML here (e.g., inject a script)
 // Example: inject a banner at the top
-$banner = '<div style="background: rgba(255,255,255,0.0); color: #4695D6; padding: 0px; text-align: center; font-weight: bold; position:sticky; top:0; z-index:9999;">Ṫ̶̡̉͂̆́̏̕h̸͓̪̯̱́̄̽̓̄̅́̾̂͋̕͝í̶̢̮̮̑̽͋̍̿͒̈͌̊̈́̚͝ṡ̴̢̧̡̰̟͚̟̻̻̞̰̗̤̎̌̅̾̃͐̂͂̎͝ͅ ̴͈́́̈̒͒̋̅̅̌̂͛̀̄ẁ̴̧̰̣̙̹̤̭͔̹̚ē̴̡̢̟̯͍̜̙͌́̂̿̅̏́̐̾̅̕͝b̵̨̨̰̻̩͚̜̲͕̅͐͋͗̑͆͌͘s̵̡̢͚̞̪̗͍͉̘͚̭̬̱̺̈́̓̍i̸̢͒̂̎͘t̸̳̮͖̮̭͔̝͚̼̻̞̞̖͈̻̿̏̾͂̇̒̋͋̈́̀͝ẹ̶̢̢̺̫̜͈̼̈̽̂̎̽̋̃̈́̈́͝ ̴̢̛͙͓̺̞̼͓̜̾̃̽̑i̸̢̩̟͖̗̜͕̯̐̀̀̂̈́̉s̸̘͍̰͔̣̦͉̩͎̓̓̈́̚ ̷͕̻͙̗̬̳̇͑̅͠ş̷̘̰̯̘̠̫͚͙͒̔̐ṃ̷͔̩̺̠͆̀̐͊̃̈́͒̂̀̋͝ụ̷̢͚͔̲̬̼̌r̵̢̛̟̠̫̠̹͛̐̎̈́̉̄̽́́̆̂̔̈̚f̵̧̧̲̗͚͙͙̝̩͙̼̻͑̀̋͗̓̓͗̂̄̔̌͘̕͜͠ȩ̵̏̂́̈́̈́̑̄̋̚͠d̸͇̪͚̬̞̱͚͌̐̔̄̅͑̈̔̚͘</div>';
+$banner = '<div style="background: rgba(255,255,255,0.0); color: #4695D6; padding: 0px; text-align: center; font-weight: bold; position:sticky; top:0; z-index:9999;">Ṫ̶̡̉͂̆́̏̕h̸͓̪̯̱́̄̽̓̄̅́̾̂͋̕͝í̶̢̮̮̑̽͋̍̿͒̈͌̊̈́̚͝ṡ̴̢̧̡̰̟͚̟̻̻̞̰̗̤̎̌̅̾̃͐̂͂̎͝ͅ ̴͈́́̈̒͒̋̅̅̌̂͛̀̄ẁ̴̧̰̣̙̹̤̭͔̹̚ē̴̡̢̟̯͍̜̙͌́̂̿̅̏́̐̾̅̕͝b̵̨̨̰̻̩͚̜̲͕̅͐͋͗̑͆͌͘s̵̡̢͚̞̪̗͍͉̘͚̭̬̱̺̈́̓̍i̸̢͒̂̎͘t̸̳̮͖̮̭͔̝͚̼̻̞̞̖͈̻̿̏̾͂̇̒̋͋̈́̀͝ẹ̶̢̢̺̫̜͈̼̈̽̂̎̽̋̃̈́̈́͝ ̴̢̛͙͓̺̞̼͓̜̾̃̽̑i̸̢̩̟͖̗̜͕̯̐̀̀̂̈́̉s̸̘͍̰͔̣̦͉̩͎̓̓̈́̚ ̷͕̻͙̗̬̳̇͑̅͠ş̷̘̰̯̘̠̫͚͙͒̔̐ṃ̷͔̩̺̠͆̀̐͊̃̈́͒̂̀̋͝ụ̷̢͚͔̲̬̼̌r̵̢̛̟̠̫̠̹͛̐̎̈́̉̄̽́́̆̂̔̈̚f̵̧̧̲̗͚͙͙̝̩͙̼̻͑̀̋͗̓̓͗̂̄̔̌͘̕͜͠ȩ̵̢̟̯͍̜̙̏̂́̈́̈́̑̄̋̚͠b̵̨̨̰̻̩͚̜̲͕̅͐͋͗̑͆͌͘s̵̡̢͚̞̪̗͍͉̘͚̭̬̱̺̈́̓̍i̸̢͒̂̎͘t̸̳̮͖̮̭͔̝͚̼̻̞̞̖͈̻̿̏̾͂̇̒̋͋̈́̀͝ẹ̶̢̢̺̫̜͈̼̈̽̂̎̽̋̃̈́̈́͝ ̴̢̛͙͓̺̞̼͓̜̾̃̽̑i̸̢̩̟͖̗̜͕̯̐̀̀̂̈́̉s̸̘͍̰͔̣̦͉̩͎̓̓̈́̚ ̷͕̻͙̗̬̳̇͑̅͠ş̷̘̰̯̘̠̫͚͙͒̔̐ṃ̷͔̩̺̠͆̀̐͊̃̈́͒̂̀̋͝ụ̷̢͚͔̲̬̼̌r̵̢̛̟̠̫̠̹͛̐̎̈́̉̄̽́́̆̂̔̈̚f̵̧̧̲̗͚͙͙̝̩͙̼̻͑̀̋͗̓̓͗̂̄̔̌͘̕͜͠ȩ̵̢̟̯͍̜̙̏̂́̈́̈́̑̄̋̚͠</div>';
 $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
 
 // Apply word replacements to the HTML
@@ -122,7 +122,7 @@ function removeAdnxsLinks() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Get the base URL of the proxy (current origin + pathname up to proxy.php)
-  var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php/');
+  var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php');
   // Rewrite all anchor tags
   var links = document.querySelectorAll('a[href]');
   links.forEach(function(link) {
@@ -135,8 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       if (url.protocol === 'http:' || url.protocol === 'https:') {
-        // Rewrite to the pretty URL format: /proxy.php/https://...
-        link.setAttribute('href', proxyBase + url.href);
+        // Rewrite to the query parameter format: /proxy.php?url=...
+        link.setAttribute('href', proxyBase + '?url=' + encodeURIComponent(url.href));
       }
     }
   });
