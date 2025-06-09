@@ -120,6 +120,34 @@ function removeAdnxsLinks() {
   });
 }
 
+function rewriteFontUrls(proxyBase) {
+  // Rewrite <link rel="stylesheet"> and <style> font URLs
+  // 1. <link rel="stylesheet" href="...">
+  var links = document.querySelectorAll('link[rel="stylesheet"][href]');
+  links.forEach(function(link) {
+    var href = link.getAttribute('href');
+    if (href && /\\.(woff2?|ttf|otf|eot)(\\?.*)?$/i.test(href)) {
+      var url = new URL(href, document.baseURI);
+      link.setAttribute('href', proxyBase + '?url=' + encodeURIComponent(url.href));
+    }
+  });
+  // 2. <style> and inline style font URLs
+  var styles = document.querySelectorAll('style, [style]');
+  styles.forEach(function(styleEl) {
+    if (styleEl.tagName === 'STYLE') {
+      styleEl.textContent = styleEl.textContent.replace(/url\((['\"]?)(https?:\\/\\/[^)'"\s]+\\.(woff2?|ttf|otf|eot)[^)'"\s]*)\1\)/gi, function(match, quote, url) {
+        return 'url(' + quote + proxyBase + '?url=' + encodeURIComponent(url) + quote + ')';
+      });
+    } else if (styleEl.hasAttribute('style')) {
+      var s = styleEl.getAttribute('style');
+      s = s.replace(/url\((['\"]?)(https?:\\/\\/[^)'"\s]+\\.(woff2?|ttf|otf|eot)[^)'"\s]*)\1\)/gi, function(match, quote, url) {
+        return 'url(' + quote + proxyBase + '?url=' + encodeURIComponent(url) + quote + ')';
+      });
+      styleEl.setAttribute('style', s);
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Get the base URL of the proxy (current origin + pathname up to proxy.php)
   var proxyBase = window.location.origin + window.location.pathname.replace(/proxy\.php.*/, 'proxy.php');
@@ -142,10 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   replaceImages(proxyBase);
   removeAdnxsLinks();
+  rewriteFontUrls(proxyBase);
   // Observe DOM changes for dynamically loaded images and ads
   var observer = new MutationObserver(function() {
     replaceImages(proxyBase);
     removeAdnxsLinks();
+    rewriteFontUrls(proxyBase);
   });
   observer.observe(document.body, { childList: true, subtree: true });
 });
@@ -197,4 +227,13 @@ if (isset($_GET['showtext']) && $_GET['showtext'] === '1') {
     header('Content-Type: text/plain; charset=utf-8');
     echo implode("\n", $texts);
     exit;
+}
+
+// If the request is for a font file, set CORS headers
+$fontExtensions = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
+$parsedUrl = parse_url($url);
+$path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+$ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+if (in_array($ext, $fontExtensions)) {
+    header('Access-Control-Allow-Origin: *');
 }
