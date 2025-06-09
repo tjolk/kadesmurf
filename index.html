@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <title>Smurf Proxy</title>
   <style>
     body { font-family: sans-serif; background: #eaf6ff; margin: 0; padding: 0; }
@@ -11,14 +14,14 @@
     form { display: flex; flex-direction: column; gap: 1em; }
     input[type=url] { padding: 0.7em; font-size: 1.1em; border: 1px solid #bbb; border-radius: 6px; }
     button { padding: 0.7em; font-size: 1.1em; background: #4695D6; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background: #357ab8; }
+    button:hover { background: #4695D6; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Smurf Proxy</h1>
     <form action="" method="get" onsubmit="return goToProxy();">
-      <label for="url">Enter a URL to smurf:</label>
+      <label for="url">Smurf een website in om te smurfen:</label>
       <input type="url" id="url" name="url" placeholder="https://example.com" required>
       <button type="submit">Go Smurf!</button>
     </form>
