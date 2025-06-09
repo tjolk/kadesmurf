@@ -35,7 +35,7 @@
     function goToProxy() {
       let url = document.getElementById('url').value;
       url = ensureHttps(url);
-      window.location.href = 'proxy.php/' + url;
+      window.location.href = 'proxy.php?url=' + encodeURIComponent(url);
       return false;
     }
   </script>
