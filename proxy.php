@@ -37,19 +37,24 @@ $cacheLifetime = 86400; // 1 day in seconds
 // Serve from cache if available and fresh
 if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
     $content = file_get_contents($cacheFile);
+    $responseHeaders = [];
+    if (file_exists($cacheFile . '.headers')) {
+        $responseHeaders = json_decode(file_get_contents($cacheFile . '.headers'), true) ?: [];
+    }
 } else {
-    // Fetch the remote content
+    // Fetch the remote content and headers
     $options = [
         'http' => [
             'method' => 'GET',
             'header' => [
-                // Use a real Chrome User-Agent for better compatibility
                 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-            ]
+            ],
+            'ignore_errors' => true // Capture response even on error status
         ]
     ];
     $context = stream_context_create($options);
     $content = @file_get_contents($url, false, $context);
+    $responseHeaders = isset($http_response_header) ? $http_response_header : [];
     if ($content === false) {
         http_response_code(502);
         $error = error_get_last();
@@ -61,6 +66,25 @@ if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)
     }
     // Save to cache
     file_put_contents($cacheFile, $content);
+    file_put_contents($cacheFile . '.headers', json_encode($responseHeaders));
+}
+
+// Helper: Parse headers into associative array
+function parse_headers_assoc($headers) {
+    $assoc = [];
+    foreach ($headers as $header) {
+        $parts = explode(':', $header, 2);
+        if (count($parts) == 2) {
+            $name = strtolower(trim($parts[0]));
+            $value = trim($parts[1]);
+            if (!isset($assoc[$name])) {
+                $assoc[$name] = $value;
+            } else {
+                $assoc[$name] .= ', ' . $value;
+            }
+        }
+    }
+    return $assoc;
 }
 
 // Load word replacements if available
@@ -189,7 +213,29 @@ EOT;
 $content = preg_replace('/<\/body>/i', $script . '</body>', $content, 1);
 
 // Output the modified content
-header('Content-Type: text/html');
+$parsedUrl = parse_url($url);
+$path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+$ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+$fontExtensions = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
+
+// Forward headers for non-HTML resources
+$headersAssoc = parse_headers_assoc($responseHeaders);
+$isHtml = true;
+if (isset($headersAssoc['content-type']) && stripos($headersAssoc['content-type'], 'text/html') === false) {
+    $isHtml = false;
+    // Forward Content-Type and some other headers
+    foreach (['content-type', 'cache-control', 'content-disposition', 'expires', 'last-modified'] as $h) {
+        if (isset($headersAssoc[$h])) {
+            header($h . ': ' . $headersAssoc[$h]);
+        }
+    }
+}
+if ($isHtml) {
+    header('Content-Type: text/html; charset=utf-8');
+}
+if (in_array($ext, $fontExtensions)) {
+    header('Access-Control-Allow-Origin: *');
+}
 echo $content;
 
 // Backend function to display all readable text of the website
