@@ -1,6 +1,6 @@
 <?php
-// admin_word_replace.php
-// Usage: /admin_word_replace.php?url=https://www.kaderock.com
+// word_replacer.php
+// Usage: /word_replacer.php?url=https://example.com
 // Shows all unique words and allows admin to define replacements
 
 $mappingFile = __DIR__ . '/word_replacements.json';
@@ -76,12 +76,9 @@ foreach ($texts as $line) {
         $wordCounts[$word]++;
     }
 }
-// Order by frequency descending, then alphabetically
-uksort($wordCounts, function($a, $b) use ($wordCounts) {
-    if ($wordCounts[$a] === $wordCounts[$b]) {
-        return strcasecmp($a, $b);
-    }
-    return $wordCounts[$b] - $wordCounts[$a];
+// Order by alphabetically
+uksort($wordCounts, function($a, $b) {
+    return strcasecmp($a, $b);
 });
 $allWords = $wordCounts;
 
@@ -89,17 +86,6 @@ $allWords = $wordCounts;
 $replacements = [];
 if (file_exists($mappingFile)) {
     $replacements = json_decode(file_get_contents($mappingFile), true) ?: [];
-}
-
-// Load excluded words
-$excludedWords = [];
-if (file_exists($excludeFile)) {
-    $excludedWords = json_decode(file_get_contents($excludeFile), true) ?: [];
-}
-
-// Remove excluded words from the list
-foreach ($excludedWords as $exWord) {
-    unset($allWords[$exWord]);
 }
 
 // Move words with replacements to the bottom

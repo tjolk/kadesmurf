@@ -1,6 +1,6 @@
 <?php
 // src/proxy.php
-// Usage: /proxy.php/https://www.kaderock.com or /proxy.php?url=https://www.kaderock.com
+// Usage: /proxy.php/https://example.com or /proxy.php?url=https://example.com
 
 // --- Robust PATH_INFO/REQUEST_URI parsing for pretty URLs ---
 $targetUrl = null;
@@ -86,7 +86,7 @@ function replace_words_in_html($html, $replacements) {
 
 // Optionally, modify the HTML here (e.g., inject a script)
 // Example: inject a banner at the top
-$banner = '<div style="background: #4695D6; color: #fff; padding: 0px; text-align: center; font-weight: bold;">T̶̡̀h̷̻̏i̷̋ͅs̶̜͛ ̷̗͝w̶͖̎ĕ̷̝b̵̭̏s̴̗̚ḯ̶̭t̴̨́e̴̤̐ ̷̬̉i̴͎͂s̵͕͒ ̸̥̋s̷͓̈m̶̺͌u̸̮͐r̴̩̀f̸͎̍è̷̩d̴̥̈́</div>';
+$banner = '<div style="background: #4695D6; color: #fff; padding: 0px; text-align: center; font-weight: bold;">Ṫ̶̡̉͂̆́̏̕h̸͓̪̯̱́̄̽̓̄̅́̾̂͋̕͝í̶̢̮̮̑̽͋̍̿͒̈͌̊̈́̚͝ṡ̴̢̧̡̰̟͚̟̻̻̞̰̗̤̎̌̅̾̃͐̂͂̎͝ͅ ̴͈́́̈̒͒̋̅̅̌̂͛̀̄ẁ̴̧̰̣̙̹̤̭͔̹̚ē̴̡̢̟̯͍̜̙͌́̂̿̅̏́̐̾̅̕͝b̵̨̨̰̻̩͚̜̲͕̅͐͋͗̑͆͌͘s̵̡̢͚̞̪̗͍͉̘͚̭̬̱̺̈́̓̍i̸̢͒̂̎͘t̸̳̮͖̮̭͔̝͚̼̻̞̞̖͈̻̿̏̾͂̇̒̋͋̈́̀͝ẹ̶̢̢̺̫̜͈̼̈̽̂̎̽̋̃̈́̈́͝ ̴̢̛͙͓̺̞̼͓̜̾̃̽̑i̸̢̩̟͖̗̜͕̯̐̀̀̂̈́̉s̸̘͍̰͔̣̦͉̩͎̓̓̈́̚ ̷͕̻͙̗̬̳̇͑̅͠ş̷̘̰̯̘̠̫͚͙͒̔̐ṃ̷͔̩̺̠͆̀̐͊̃̈́͒̂̀̋͝ụ̷̢͚͔̲̬̼̌r̵̢̛̟̠̫̠̹͛̐̎̈́̉̄̽́́̆̂̔̈̚f̵̧̧̲̗͚͙͙̝̩͙̼̻͑̀̋͗̓̓͗̂̄̔̌͘̕͜͠ȩ̵̏̂́̈́̈́̑̄̋̚͠d̸͇̪͚̬̞̱͚͌̐̔̄̅͑̈̔̚͘</div>';
 $content = preg_replace('/<body[^>]*>/i', '$0' . $banner, $content, 1);
 
 // Apply word replacements to the HTML

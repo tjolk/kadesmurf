@@ -1,6 +1,6 @@
 <?php
-// admin_text_extract.php
-// Usage: /admin_text_extract.php?url=https://www.kaderock.com
+// text_extractor.php
+// Usage: /text_extractor.php?url=https://example.com
 // Shows all readable text from the cached or live site as plain text (for admin use)
 
 if (!isset($_GET['url'])) {
